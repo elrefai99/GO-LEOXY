@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"go-backend/internal/module/auth"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,5 +15,6 @@ func main() {
 			"message": "pong",
 		})
 	})
+	auth.RegisterRoutes(router)
 	router.Run(":9000")
 }
