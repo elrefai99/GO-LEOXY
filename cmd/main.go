@@ -1,20 +1,17 @@
 package main
 
-import (
-	"net/http"
-
-	"go-backend/internal/module/auth"
-
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 func main() {
-	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+	var router *gin.Engine = gin.Default()
+
+	router.GET("/", func(c *gin.Context) {
+		// c.Request.URL.Query()
+
+		c.JSON(200, gin.H{
+			"message": "First gin backend work with node.js",
 		})
 	})
-	auth.RegisterRoutes(router)
-	router.Run(":9000")
+
+	router.Run(":3000")
 }
