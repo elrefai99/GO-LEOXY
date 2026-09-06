@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/elrefai99/go-backend/internal/config"
+	"github.com/elrefai99/go-backend/internal/module/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +17,7 @@ func main() {
 	defer db.Close()
 	var router *gin.Engine = gin.Default()
 
+	router.POST("/data", (&auth.LoginRequest{}).LoginController)
 	router.GET("/", func(c *gin.Context) {
 		m := c.Request.URL.Query()
 		selectQuery := "select id, email from employees"
@@ -55,6 +58,18 @@ func main() {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
+		ch := make(chan string)
+
+		go func() {
+			s := "hi hi"
+
+			ch <- s
+		}()
+
+		go func() {
+			s := <-ch
+			fmt.Println(s)
+		}()
 
 		c.JSON(200, gin.H{
 			"message":   "First gin backend work with node.js",
