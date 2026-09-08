@@ -17,7 +17,7 @@ func main() {
 	defer db.Close()
 	var router *gin.Engine = gin.Default()
 
-	router.POST("/data", (&auth.LoginRequest{}).LoginController)
+	router.POST("/data", auth.LoginController(db))
 	router.GET("/", func(c *gin.Context) {
 		m := c.Request.URL.Query()
 		selectQuery := "select id, email from employees"

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -11,16 +12,31 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-func (user *LoginRequest) LoginController(cx *gin.Context) {
-	
-	err := cx.ShouldBindJSON(&user)
+func LoginController(db *sql.DB) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 
-	if err != nil {
-		log.Fatal("error body")
+		var (
+			userID string
+			email  string
+		)
+		var user LoginRequest
+
+		if err := ctx.ShouldBindJSON(&user); err != nil {
+			log.Fatal("error body")
+		}
+
+		selectQuery := "SELECT uid, email FROM users WHERE email=$1"
+
+		if err := db.QueryRow(selectQuery, user.Email).Scan(&userID, &email); err != nil {
+			log.Fatal("error body")
+		}
+		
+		ctx.JSON(200, gin.H{
+			"message": "Body",
+			"Data": gin.H{
+				"uid":   userID,
+				"email": email,
+			},
+		})
 	}
-
-	cx.JSON(200, gin.H{
-		"message": "Body",
-		"Data":    user,
-	})
 }
