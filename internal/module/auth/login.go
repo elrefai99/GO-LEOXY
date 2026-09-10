@@ -30,7 +30,7 @@ func LoginController(db *sql.DB) gin.HandlerFunc {
 		if err := db.QueryRow(selectQuery, user.Email).Scan(&userID, &email); err != nil {
 			log.Fatal("error body")
 		}
-		
+
 		ctx.JSON(200, gin.H{
 			"message": "Body",
 			"Data": gin.H{
