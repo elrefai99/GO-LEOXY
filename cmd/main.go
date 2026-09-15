@@ -1,26 +1,20 @@
 package main
 
 import (
-	"log"
+	"os"
 
 	"github.com/elrefai99/go-backend/internal/config"
-	"github.com/elrefai99/go-backend/internal/middleware"
-	"github.com/elrefai99/go-backend/internal/module/auth"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	db, err := config.ConnectDatabase()
-	if err != nil {
-		log.Fatal("database connection failed: ", err)
+	config.LoadEnv()
+
+	if os.Getenv("APP_ENV") == "production" {
+		gin.SetMode(gin.ReleaseMode)
 	}
-	defer db.Close()
-	var router *gin.Engine = gin.Default()
+	g := gin.Default()
+	g.Use(gin.Logger())
 
-	router.Use(middleware.CorsMiddleware())
-
-	router.POST("/data", auth.LoginController(db))
-
-	PORT, _ := config.Load()
-	router.Run(PORT.Port)
+	g.Run()
 }

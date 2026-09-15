@@ -3,26 +3,19 @@ package config
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
 
-type DotEnvConfig struct {
-	Port         string
-	DATABASE_URL string
-}
-
-func Load() (*DotEnvConfig, error) {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal(err)
+func LoadEnv() {
+	envFile := ".env"
+	if os.Getenv("APP_ENV") == "development" {
+		envFile = ".env.dev"
 	}
 
-	var config *DotEnvConfig = &DotEnvConfig{
-		Port:         ":" + os.Getenv("PORT"),
-		DATABASE_URL: os.Getenv("DATABASE_URL"),
+	path := filepath.Join(".", envFile)
+	if err := godotenv.Load(path); err != nil {
+		log.Printf("no %s file found, using system env", envFile)
 	}
-
-	return config, nil
 }
