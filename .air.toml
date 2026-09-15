@@ -48,5 +48,3 @@ tmp_dir = "tmp"
 
 [misc]
   clean_on_exit = false
-[env]
-  APP_ENV = "development"

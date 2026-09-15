@@ -1,20 +1,29 @@
 package main
 
 import (
+	"log"
 	"os"
 
-	"github.com/elrefai99/go-backend/internal/config"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	config.LoadEnv()
-
-	if os.Getenv("APP_ENV") == "production" {
-		gin.SetMode(gin.ReleaseMode)
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
 	}
+
 	g := gin.Default()
 	g.Use(gin.Logger())
+	g.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
-	g.Run()
+	if err := g.Run(os.Getenv("PORT")); err != nil {
+		log.Fatal(err)
+	}
 }
