@@ -2,26 +2,34 @@ package Queue
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
-type Job struct {
+type IJob struct {
 	ID      int    `json:"id"`
 	Type    string `json:"type"`
-	Payload string `json:"payload"`
+	Payload any    `json:"payload"`
 }
 
 type Queue struct {
-	jobs chan Job
+	jobs   chan IJob
+	nextID int
+	mu     sync.Mutex
 }
 
 func LeoxyWorker(size int) *Queue {
 	return &Queue{
-		jobs: make(chan Job, size),
+		jobs: make(chan IJob, size),
 	}
 }
 
-func (q *Queue) Add(j Job) {
+func (q *Queue) Add(j IJob) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.nextID++
+	j.ID = q.nextID
+
 	q.jobs <- j
 }
 
@@ -36,12 +44,16 @@ func (q *Queue) Worker(id int) {
 
 		switch jobs.Type {
 		case "email":
-			fmt.Printf(
-				"Sending email: %s\n",
-				jobs.Payload,
-			)
+			SendEmail(jobs)
 
 			time.Sleep(2 * time.Second)
 		}
 	}
+}
+
+func SendEmail(jobs IJob) {
+	fmt.Printf(
+		"Sending email: %s\n",
+		jobs.Payload,
+	)
 }

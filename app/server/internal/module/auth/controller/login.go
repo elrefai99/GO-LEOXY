@@ -30,8 +30,7 @@ func LoginController(db *mongo.Database, workerQueue *Queue.Queue) gin.HandlerFu
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 			return
 		}
-		job := Queue.Job{
-			ID:      1,
+		job := Queue.IJob{
 			Type:    "email",
 			Payload: "hello@example.com",
 		}

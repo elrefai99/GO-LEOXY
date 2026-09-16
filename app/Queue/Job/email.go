@@ -1,15 +1,14 @@
 package queue
 
-import "sync"
+import (
+	"fmt"
 
-type EmailJob struct {
-	ID      int
-	To      string
-	Subject string
-	Body    string
-}
+	"github.com/elrefai99/go-backend/app/Queue"
+)
 
-type EmailQueue struct {
-	jobs chan EmailJob
-	wg   sync.WaitGroup
+func SendEmail(jobs Queue.Job) {
+	fmt.Printf(
+		"Sending email: %s\n",
+		jobs.Payload,
+	)
 }
