@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -16,11 +15,6 @@ const (
 	UserStatusConfirmed UserStatus = "Confirmed"
 	UserStatusDeleted   UserStatus = "Deleted"
 	UserStatusPending   UserStatus = "Pending"
-)
-
-var (
-	once       sync.Once
-	indexError error
 )
 
 type IUser struct {
@@ -39,37 +33,42 @@ type IUser struct {
 
 func CreateUserIndex(db *mongo.Database) error {
 
-	once.Do(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		user := db.Collection("users")
-		models := []mongo.IndexModel{
-			{
-				Keys: bson.D{
-					{Key: "email", Value: 1},
-				},
-				Options: options.Index().
-					SetName("users_email"),
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	user := db.Collection("users")
+	models := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{Key: "email", Value: 1},
 			},
-			{
-				Keys: bson.D{
-					{Key: "status", Value: 1},
-					{Key: "email", Value: 1},
-				},
-				Options: options.Index().
-					SetName("users_status_email"),
+			Options: options.Index().
+				SetName("users_email"),
+		},
+		{
+			Keys: bson.D{
+				{Key: "status", Value: 1},
+				{Key: "username", Value: 1},
 			},
-			{
-				Keys: bson.D{
-					{Key: "createdAt", Value: -1},
-				},
-				Options: options.Index().
-					SetName("users_created_at"),
+			Options: options.Index().
+				SetName("users_status_username"),
+		},
+		{
+			Keys: bson.D{
+				{Key: "status", Value: 1},
+				{Key: "email", Value: 1},
 			},
-		}
+			Options: options.Index().
+				SetName("users_status_email"),
+		},
+		{
+			Keys: bson.D{
+				{Key: "createdAt", Value: -1},
+			},
+			Options: options.Index().
+				SetName("users_created_at"),
+		},
+	}
 
-		_, err := user.Indexes().CreateMany(ctx, models)
-		indexError = err
-	})
-	return indexError
+	_, err := user.Indexes().CreateMany(ctx, models)
+	return err
 }

@@ -21,7 +21,7 @@ func CreateIndexes(db *mongo.Database) error {
 func ConnectDatabase() (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(envData.DATABASE_URI)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(clientOptions)
@@ -29,16 +29,13 @@ func ConnectDatabase() (*mongo.Client, error) {
 		return nil, err
 	}
 
-	if err := client.Ping(ctx, nil); err != nil {
-		_ = client.Disconnect(context.Background())
-		return nil, err
-	}
 	db := client.Database(envData.DATABASE)
 
 	if err := CreateIndexes(db); err != nil {
 		_ = client.Disconnect(context.Background())
 		return nil, err
 	}
+
 	fmt.Println("Success connect with MongoDB")
 	return client, nil
 }
