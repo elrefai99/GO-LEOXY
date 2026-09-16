@@ -1,16 +1,17 @@
 package main
 
 import (
+	"context"
 	"log"
-	"os"
 
+	"github.com/elrefai99/go-backend/app/server/internal/config"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
+	env, err := config.LoadEnv()
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -23,7 +24,13 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	if err := g.Run(os.Getenv("PORT")); err != nil {
+	client, err := config.ConnectDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(context.Background())
+
+	if err := g.Run(env.PORT); err != nil {
 		log.Fatal(err)
 	}
 }
