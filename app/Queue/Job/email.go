@@ -1,12 +1,12 @@
-package queue
+package JobQueue
 
 import (
 	"fmt"
 
-	"github.com/elrefai99/go-backend/app/Queue"
+	"github.com/elrefai99/go-backend/app/Queue/model"
 )
 
-func SendEmail(jobs Queue.Job) {
+func SendEmail(jobs model.IJob) {
 	fmt.Printf(
 		"Sending email: %s\n",
 		jobs.Payload,

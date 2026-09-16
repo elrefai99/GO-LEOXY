@@ -4,27 +4,24 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	JobQueue "github.com/elrefai99/go-backend/app/Queue/job"
+	"github.com/elrefai99/go-backend/app/Queue/model"
 )
 
-type IJob struct {
-	ID      int    `json:"id"`
-	Type    string `json:"type"`
-	Payload any    `json:"payload"`
-}
-
 type Queue struct {
-	jobs   chan IJob
+	jobs   chan model.IJob
 	nextID int
 	mu     sync.Mutex
 }
 
 func LeoxyWorker(size int) *Queue {
 	return &Queue{
-		jobs: make(chan IJob, size),
+		jobs: make(chan model.IJob, size),
 	}
 }
 
-func (q *Queue) Add(j IJob) {
+func (q *Queue) Add(j model.IJob) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	q.nextID++
@@ -44,16 +41,9 @@ func (q *Queue) Worker(id int) {
 
 		switch jobs.Type {
 		case "email":
-			SendEmail(jobs)
+			JobQueue.SendEmail(jobs)
 
 			time.Sleep(2 * time.Second)
 		}
 	}
-}
-
-func SendEmail(jobs IJob) {
-	fmt.Printf(
-		"Sending email: %s\n",
-		jobs.Payload,
-	)
 }

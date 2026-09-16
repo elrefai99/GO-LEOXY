@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/elrefai99/go-backend/app/Queue"
+	"github.com/elrefai99/go-backend/app/Queue/model"
 	authService "github.com/elrefai99/go-backend/app/server/internal/module/auth/service"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -30,7 +31,7 @@ func LoginController(db *mongo.Database, workerQueue *Queue.Queue) gin.HandlerFu
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 			return
 		}
-		job := Queue.IJob{
+		job := model.IJob{
 			Type:    "email",
 			Payload: "hello@example.com",
 		}
