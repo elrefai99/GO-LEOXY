@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/elrefai99/go-backend/app/server/internal/config"
+	"github.com/elrefai99/go-backend/app/server/internal/module/auth"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +30,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer client.Disconnect(context.Background())
+
+	// Routers
+	auth.AuthRouter(g, client.Database(env.DATABASE))
 
 	if err := g.Run(env.PORT); err != nil {
 		log.Fatal(err)

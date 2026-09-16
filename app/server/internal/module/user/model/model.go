@@ -21,7 +21,7 @@ type IUser struct {
 	ID        bson.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Fullname  string        `json:"fullname"`
 	Email     string        `json:"email"`
-	Password  string        `json:"password"`
+	Password  string        `json:"-" bson:"password"`
 	AvatarURL string        `json:"avaterUrl"`
 	Username  string        `json:"username"`
 	Phone     string        `json:"phone"`
