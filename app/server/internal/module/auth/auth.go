@@ -9,6 +9,6 @@ import (
 func AuthRouter(r *gin.Engine, db *mongo.Database) {
 	auth := r.Group("api/auth")
 	{
-		auth.POST("/login", controller.LoginCotroller(db))
+		auth.POST("/login", controller.LoginController(db))
 	}
 }

@@ -3,11 +3,9 @@ package controller
 import (
 	"net/http"
 
-	"github.com/elrefai99/go-backend/app/server/internal/module/user/model"
+	authService "github.com/elrefai99/go-backend/app/server/internal/module/auth/service"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type LoginReq struct {
@@ -15,14 +13,9 @@ type LoginReq struct {
 	Password string `json:"password"`
 }
 
-type LoginRes struct {
-	ID       bson.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Email    string        `json:"email"`
-	Password string        `json:"-" bson:"password"`
-	Username string        `json:"username"`
-}
+func LoginController(db *mongo.Database) gin.HandlerFunc {
+	service := authService.NewService(db)
 
-func LoginCotroller(db *mongo.Database) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var body LoginReq
 		if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -30,30 +23,15 @@ func LoginCotroller(db *mongo.Database) gin.HandlerFunc {
 			return
 		}
 
-		var user LoginRes
-
-		err := db.Collection("users").FindOne(
-			ctx,
-			bson.M{
-				"status": model.UserStatusConfirmed,
-				"email":  body.Email,
-			},
-			options.FindOne().SetProjection(
-				bson.M{
-					"_id":      1,
-					"username": 1,
-					"email":    1,
-				},
-			),
-		).Decode(&user)
+		data, err := service.Authenticate(ctx.Request.Context(), body.Email, body.Password)
 
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 			return
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{
-			"body": user,
+			"body": data,
 		})
 	}
 }
