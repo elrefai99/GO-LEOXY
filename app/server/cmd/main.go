@@ -12,11 +12,7 @@ import (
 )
 
 func main() {
-	workerQueue := Queue.LeoxyWorker(100)
-
-	go workerQueue.Worker(1)
-	go workerQueue.Worker(2)
-	go workerQueue.Worker(3)
+	workerQueue := Queue.LeoxyWorker(10)
 
 	env, err := config.LoadEnv()
 	if err != nil {
