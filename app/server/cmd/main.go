@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/elrefai99/go-backend/app/Queue"
 	"github.com/elrefai99/go-backend/app/server/internal/config"
 	"github.com/elrefai99/go-backend/app/server/internal/module/auth"
 	"github.com/gin-contrib/cors"
@@ -11,6 +12,12 @@ import (
 )
 
 func main() {
+	workerQueue := Queue.LeoxyWorker(100)
+
+	go workerQueue.Worker(1)
+	go workerQueue.Worker(2)
+	go workerQueue.Worker(3)
+
 	env, err := config.LoadEnv()
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +39,7 @@ func main() {
 	defer client.Disconnect(context.Background())
 
 	// Routers
-	auth.AuthRouter(g, client.Database(env.DATABASE))
+	auth.AuthRouter(g, client.Database(env.DATABASE), workerQueue)
 
 	if err := g.Run(env.PORT); err != nil {
 		log.Fatal(err)

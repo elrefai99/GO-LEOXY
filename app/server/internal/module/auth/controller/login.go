@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/elrefai99/go-backend/app/Queue"
 	authService "github.com/elrefai99/go-backend/app/server/internal/module/auth/service"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -13,7 +14,7 @@ type LoginReq struct {
 	Password string `json:"password"`
 }
 
-func LoginController(db *mongo.Database) gin.HandlerFunc {
+func LoginController(db *mongo.Database, workerQueue *Queue.Queue) gin.HandlerFunc {
 	service := authService.NewService(db)
 
 	return func(ctx *gin.Context) {
@@ -29,7 +30,12 @@ func LoginController(db *mongo.Database) gin.HandlerFunc {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 			return
 		}
-
+		job := Queue.Job{
+			ID:      1,
+			Type:    "email",
+			Payload: "hello@example.com",
+		}
+		workerQueue.Add(job)
 		ctx.JSON(http.StatusOK, gin.H{
 			"body": data,
 		})
