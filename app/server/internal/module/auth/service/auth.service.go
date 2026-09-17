@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/elrefai99/go-backend/app/server/internal/module/user/model"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -40,6 +41,32 @@ func (s *Service) FindUserAccount(ctx context.Context, email string) (*model.IUs
 	}
 
 	return &user, nil
+}
+func (s *Service) RegisterService(ctx context.Context, fullname, email, password string) (any, error) {
+
+	now := time.Now()
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &model.IUser{
+		Fullname:  fullname,
+		Email:     email,
+		Password:  string(hashedPassword),
+		Username:  "",
+		Phone:     "",
+		Status:    model.UserStatusPending,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	inserted, err := s.db.Collection("users").InsertOne(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return inserted, nil
 }
 func (s *Service) Authenticate(ctx context.Context, email, password string) (*model.IUser, error) {
 	user, err := s.FindUserAccount(ctx, email)

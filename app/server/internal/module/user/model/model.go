@@ -19,16 +19,16 @@ const (
 
 type IUser struct {
 	ID        bson.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Fullname  string        `json:"fullname"`
-	Email     string        `json:"email"`
+	Fullname  string        `json:"fullname" bson:"fullname"`
+	Email     string        `json:"email" bson:"email"`
 	Password  string        `json:"-" bson:"password"`
-	AvatarURL string        `json:"avaterUrl"`
-	Username  string        `json:"username"`
-	Phone     string        `json:"phone"`
-	Code      string        `json:"code"`
-	Status    UserStatus    `json:"status"`
-	CreatedAt time.Time     `json:"createdAt"`
-	UpdatedAt time.Time     `json:"updatedAt"`
+	AvatarURL string        `json:"avatarUrl" bson:"avatarUrl"`
+	Username  string        `json:"username" bson:"username"`
+	Phone     string        `json:"phone" bson:"phone"`
+	Code      string        `json:"code" bson:"code"`
+	Status    UserStatus    `json:"status" bson:"status"`
+	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time     `json:"updatedAt" bson:"updatedAt"`
 }
 
 func CreateUserIndex(db *mongo.Database) error {

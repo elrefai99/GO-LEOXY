@@ -11,5 +11,6 @@ func AuthRouter(r *gin.Engine, db *mongo.Database, workerQueue *Queue.Queue) {
 	auth := r.Group("api/auth")
 	{
 		auth.POST("/login", controller.LoginController(db, workerQueue))
+		auth.POST("/register", controller.RegisterController(db, workerQueue))
 	}
 }
