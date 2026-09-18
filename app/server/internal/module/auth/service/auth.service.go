@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"math/rand/v2"
+	"strings"
 	"time"
 
 	"github.com/elrefai99/go-backend/app/server/internal/module/user/model"
@@ -51,11 +54,16 @@ func (s *Service) RegisterService(ctx context.Context, fullname, email, password
 		return nil, err
 	}
 
+	username := fmt.Sprintf(
+		"%s_%d",
+		strings.Join(strings.Fields(strings.ToLower(fullname)), "_"),
+		rand.IntN(1000),
+	)
 	user := &model.IUser{
 		Fullname:  fullname,
 		Email:     email,
 		Password:  string(hashedPassword),
-		Username:  "",
+		Username:  username,
 		Phone:     "",
 		Status:    model.UserStatusPending,
 		CreatedAt: now,
