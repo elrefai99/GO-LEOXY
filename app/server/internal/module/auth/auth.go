@@ -7,10 +7,10 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-func AuthRouter(r *gin.Engine, db *mongo.Database, workerQueue *Queue.Queue) {
+func AuthRouter(r *gin.Engine, db *mongo.Database, workerQueue *Queue.Queue, jwtSecret string) {
 	auth := r.Group("api/auth")
 	{
-		auth.POST("/login", controller.LoginController(db, workerQueue))
+		auth.POST("/login", controller.LoginController(db, jwtSecret))
 		auth.POST("/register", controller.RegisterController(db, workerQueue))
 	}
 }

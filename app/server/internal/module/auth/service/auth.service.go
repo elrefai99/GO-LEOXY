@@ -28,8 +28,7 @@ func (s *Service) FindUserAccount(ctx context.Context, email string) (*model.IUs
 	err := s.db.Collection("users").FindOne(
 		ctx,
 		bson.M{
-			"status": model.UserStatusConfirmed,
-			"email":  email,
+			"email": email,
 		},
 		options.FindOne().SetProjection(bson.M{
 			"_id":      1,
@@ -65,7 +64,7 @@ func (s *Service) RegisterService(ctx context.Context, fullname, email, password
 		Password:  string(hashedPassword),
 		Username:  username,
 		Phone:     "",
-		Status:    model.UserStatusPending,
+		Status:    model.UserStatusConfirmed,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

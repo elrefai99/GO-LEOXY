@@ -32,9 +32,12 @@ type IUser struct {
 }
 
 func CreateUserIndex(db *mongo.Database) error {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	return CreateUserIndexWithContext(ctx, db)
+}
+
+func CreateUserIndexWithContext(ctx context.Context, db *mongo.Database) error {
 	user := db.Collection("users")
 	models := []mongo.IndexModel{
 		{
@@ -42,7 +45,8 @@ func CreateUserIndex(db *mongo.Database) error {
 				{Key: "email", Value: 1},
 			},
 			Options: options.Index().
-				SetName("users_email"),
+				SetName("users_email").
+				SetUnique(true),
 		},
 		{
 			Keys: bson.D{
@@ -50,15 +54,8 @@ func CreateUserIndex(db *mongo.Database) error {
 				{Key: "username", Value: 1},
 			},
 			Options: options.Index().
-				SetName("users_status_username"),
-		},
-		{
-			Keys: bson.D{
-				{Key: "status", Value: 1},
-				{Key: "email", Value: 1},
-			},
-			Options: options.Index().
-				SetName("users_status_email"),
+				SetName("users_username").
+				SetUnique(true),
 		},
 		{
 			Keys: bson.D{

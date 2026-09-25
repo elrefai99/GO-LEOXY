@@ -10,18 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-func CreateIndexes(db *mongo.Database) error {
-	if err := userModel.CreateUserIndex(db); err != nil {
-		return err
-	}
-	fmt.Println("Indexes created successfully")
-	return nil
-}
-
 func ConnectDatabase() (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(envData.DATABASE_URI)
 
-	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(clientOptions)
@@ -30,8 +22,12 @@ func ConnectDatabase() (*mongo.Client, error) {
 	}
 
 	db := client.Database(envData.DATABASE)
+	if err := client.Ping(ctx, nil); err != nil {
+		_ = client.Disconnect(context.Background())
+		return nil, err
+	}
 
-	if err := CreateIndexes(db); err != nil {
+	if err := userModel.CreateUserIndexWithContext(ctx, db); err != nil {
 		_ = client.Disconnect(context.Background())
 		return nil, err
 	}

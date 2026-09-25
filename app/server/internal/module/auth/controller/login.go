@@ -2,10 +2,7 @@ package controller
 
 import (
 	"net/http"
-	"os"
 
-	"github.com/elrefai99/go-backend/app/Queue"
-	"github.com/elrefai99/go-backend/app/Queue/model"
 	authService "github.com/elrefai99/go-backend/app/server/internal/module/auth/service"
 	utilsToken "github.com/elrefai99/go-backend/app/server/internal/module/auth/utils"
 	"github.com/gin-gonic/gin"
@@ -17,9 +14,9 @@ type LoginReq struct {
 	Password string `json:"password"`
 }
 
-func LoginController(db *mongo.Database, workerQueue *Queue.Queue) gin.HandlerFunc {
+func LoginController(db *mongo.Database, secret string) gin.HandlerFunc {
 	service := authService.NewService(db)
-	token := utilsToken.NewToken(os.Getenv("ACCESS_TOKEN_JWT"))
+	token := utilsToken.NewToken(secret)
 
 	return func(ctx *gin.Context) {
 		var body LoginReq
@@ -34,12 +31,11 @@ func LoginController(db *mongo.Database, workerQueue *Queue.Queue) gin.HandlerFu
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 			return
 		}
-		job := model.IJob{
-			Type:    "email",
-			Payload: "hello@example.com",
+		accessToken, err := token.CreateAccess(data.Email)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "could not create access token"})
+			return
 		}
-		workerQueue.Add(job)
-		accessToken, _ := token.CreateAccess(data.Email)
 		ctx.JSON(http.StatusOK, gin.H{
 			"body": accessToken,
 		})

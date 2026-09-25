@@ -89,7 +89,8 @@ func (q *Queue) process(workerID int, job model.IJob) error {
 		return nil
 
 	default:
-		return fmt.Errorf("unknown job type: %s", job.Type)
+		fmt.Printf("Worker %d skipped unknown job type: %s\n", workerID, job.Type)
+		return nil
 	}
 }
 

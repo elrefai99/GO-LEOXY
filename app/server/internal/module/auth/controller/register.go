@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/elrefai99/go-backend/app/Queue"
@@ -28,7 +29,7 @@ func RegisterController(db *mongo.Database, workerQueue *Queue.Queue) gin.Handle
 		}
 		data, err := services.RegisterService(ctx.Request.Context(), body.Fullname, body.Email, body.Password)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "could not register account"})
 			return
 		}
 
@@ -36,7 +37,9 @@ func RegisterController(db *mongo.Database, workerQueue *Queue.Queue) gin.Handle
 			Type:    "email",
 			Payload: body.Email,
 		}
-		workerQueue.Add(job)
+		if err := workerQueue.Add(job); err != nil {
+			log.Printf("could not queue confirmation email: %v", err)
+		}
 		ctx.JSON(http.StatusOK, gin.H{
 			"body": data,
 		})

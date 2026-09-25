@@ -2,7 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/elrefai99/go-backend/app/Queue"
 	"github.com/elrefai99/go-backend/app/server/internal/config"
@@ -12,12 +18,12 @@ import (
 )
 
 func main() {
-	workerQueue := Queue.LeoxyWorker(10)
-
 	env, err := config.LoadEnv()
 	if err != nil {
 		log.Fatal(err)
 	}
+	workerQueue := Queue.LeoxyWorker(10)
+	defer workerQueue.Close()
 
 	g := gin.Default()
 	g.Use(gin.Logger())
@@ -35,9 +41,26 @@ func main() {
 	defer client.Disconnect(context.Background())
 
 	// Routers
-	auth.AuthRouter(g, client.Database(env.DATABASE), workerQueue)
+	auth.AuthRouter(g, client.Database(env.DATABASE), workerQueue, env.ACCESS_TOKEN_JWT)
 
-	if err := g.Run(env.PORT); err != nil {
-		log.Fatal(err)
+	server := &http.Server{Addr: env.PORT, Handler: g}
+	defer workerQueue.Close()
+	serverErrors := make(chan error, 1)
+	go func() {
+		serverErrors <- server.ListenAndServe()
+	}()
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	select {
+	case err := <-serverErrors:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	case <-stop:
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownContext); err != nil {
+			log.Printf("HTTP server shutdown failed: %v", err)
+		}
 	}
 }
