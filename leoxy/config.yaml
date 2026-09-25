@@ -13,7 +13,7 @@ upstream:
   - name: "Backend"
     path: /api
     ip: true
-    body: 10 # By MB only
+    body: 10
     server_url: "http://localhost:9001"
     security:
       route_rate_limit: 100
