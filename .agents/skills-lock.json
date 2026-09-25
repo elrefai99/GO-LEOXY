@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "fix-issues": {
+      "source": "elrefai99/use",
+      "sourceType": "github",
+      "skillPath": "skills/fix-issues/SKILL.md",
+      "computedHash": "4194f93d1fbb81b7e2cc0979ca219d8e7bb1883d29bbdcb9816b27be5c3e7276"
+    },
+    "go-module-architecture": {
+      "source": "elrefai99/use",
+      "sourceType": "github",
+      "skillPath": "skills/go-module-architecture/SKILL.md",
+      "computedHash": "1b06addf16c48ccf6ab1f754f7d94c407054260ea8d4c44ee70f8d6c75f41425"
+    },
+    "message-queue": {
+      "source": "elrefai99/use",
+      "sourceType": "github",
+      "skillPath": "skills/message-queue/SKILL.md",
+      "computedHash": "7b6bff79a97b0451686553e3a799f500cd53d4ab06a9e62a59037da9ce49a5f4"
+    },
+    "multi-agents": {
+      "source": "elrefai99/use",
+      "sourceType": "github",
+      "skillPath": "skills/multi-agents/SKILL.md",
+      "computedHash": "7b563e14529fd929f3489346dc859f9ba7d978ba54d4b2a43c59acb3c4f6beb0"
+    },
+    "multi-tenant": {
+      "source": "elrefai99/use",
+      "sourceType": "github",
+      "skillPath": "skills/multi-tenant/SKILL.md",
+      "computedHash": "5e66c24337a9eb38fb8f40d84ac62edd831b6f728a6d3b3ed33f0f9d93f6b866"
+    }
+  }
+}
